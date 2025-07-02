@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Mapa Mental - Gerência de Processos e Memória</title>
+    <title>Mapa Mental Interativo - Gerência de Processos e Memória</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -50,10 +50,12 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
             margin-bottom: 30px;
             border: 3px solid var(--secondary);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-        .central-node h2 {
-            margin: 0;
-            font-size: 1.5em;
+        .central-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
         .branches-container {
             display: flex;
@@ -74,6 +76,10 @@
             margin-bottom: 20px;
             overflow: hidden;
             border-top: 5px solid var(--secondary);
+            transition: transform 0.3s;
+        }
+        .branch:hover {
+            transform: translateY(-5px);
         }
         .branch-title {
             background-color: var(--secondary);
@@ -81,9 +87,29 @@
             padding: 12px 15px;
             font-size: 1.2em;
             font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .branch-title:after {
+            content: "+";
+            font-size: 1.5em;
+            transition: transform 0.3s;
+        }
+        .branch-title.active:after {
+            content: "-";
         }
         .node-content {
             padding: 15px;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+        .node-content.collapsed {
+            max-height: 0;
+            padding: 0 15px;
+            overflow: hidden;
         }
         .sub-node {
             background-color: var(--light);
@@ -91,10 +117,20 @@
             border-radius: 8px;
             margin-bottom: 10px;
             border-left: 4px solid var(--secondary);
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
         }
         .sub-node:hover {
             transform: translateX(5px);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .sub-node.flash {
+            animation: flash 1s;
+        }
+        @keyframes flash {
+            0%, 100% { background-color: var(--light); }
+            50% { background-color: #fffde7; }
         }
         .sub-node-title {
             font-weight: bold;
@@ -108,6 +144,12 @@
             margin: 8px 0 8px 15px;
             font-size: 0.95em;
             border-left: 3px solid #7f8c8d;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .sub-sub-node:hover {
+            background-color: #e3f2fd;
+            transform: translateX(3px);
         }
         .highlight {
             background-color: #fffde7;
@@ -171,12 +213,120 @@
             font-weight: bold;
             color: #0d47a1;
         }
+        .quiz-container {
+            background-color: #f0f7ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .quiz-question {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .quiz-options {
+            margin-bottom: 15px;
+        }
+        .quiz-option {
+            margin-bottom: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .quiz-option:hover {
+            background-color: #e3f2fd;
+        }
+        .quiz-option.selected {
+            background-color: #bbdefb;
+            font-weight: bold;
+        }
+        .quiz-option.correct {
+            background-color: #c8e6c9;
+        }
+        .quiz-option.incorrect {
+            background-color: #ffcdd2;
+        }
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .quiz-feedback.correct {
+            background-color: #e8f5e9;
+            display: block;
+        }
+        .quiz-feedback.incorrect {
+            background-color: #ffebee;
+            display: block;
+        }
+        .quiz-button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .quiz-button:hover {
+            background-color: #2980b9;
+        }
+        .memory-game {
+            background-color: #fff3e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .memory-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .memory-card {
+            height: 80px;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.3s, background-color 0.3s;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        .memory-card:hover {
+            transform: scale(1.03);
+        }
+        .memory-card.flipped {
+            background-color: var(--light);
+            color: var(--dark);
+            transform: rotateY(180deg);
+        }
+        .memory-card.matched {
+            background-color: var(--success);
+            cursor: default;
+        }
+        .memory-stats {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
         @media (max-width: 768px) {
             .branches-container {
                 flex-direction: column;
             }
             .branch-column {
                 min-width: 100%;
+            }
+            .memory-cards {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -185,13 +335,13 @@
     <div class="container">
         <div class="header">
             <h1>Gerência de Processos e Memória</h1>
-            <p>Sistemas Operacionais - Unidade II</p>
+            <p>Sistemas Operacionais - Unidade II | Mapa Mental Interativo</p>
         </div>
         
         <div class="mindmap-container">
-            <div class="central-node">
+            <div class="central-node" id="centralNode">
                 <h2>Gerência de Processos e Memória</h2>
-                <p>Gerenciamento de Recursos do SO</p>
+                <p>Clique para destacar conceitos relacionados</p>
             </div>
             
             <div class="branches-container">
@@ -199,25 +349,25 @@
                 <div class="branch-column">
                     <!-- Ramo 1 -->
                     <div class="branch">
-                        <div class="branch-title">Conceitos Básicos de Processos</div>
+                        <div class="branch-title" onclick="toggleBranch(this)">Conceitos Básicos de Processos</div>
                         <div class="node-content">
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="processo,pcb">
                                 <div class="sub-node-title">Definição</div>
                                 <p>Programa em execução com:</p>
-                                <div class="sub-sub-node">Dados de entrada/saída</div>
-                                <div class="sub-sub-node">Estado atual</div>
-                                <div class="sub-sub-node">Contexto de execução</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Dados de entrada/saída</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Estado atual</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Contexto de execução</div>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="pcb,processo">
                                 <div class="sub-node-title">PCB (Process Control Block)</div>
-                                <div class="sub-sub-node">Identificação (PID)</div>
-                                <div class="sub-sub-node">Estado do processo</div>
-                                <div class="sub-sub-node">Contadores e registradores</div>
-                                <div class="sub-sub-node">Informações de memória</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Identificação (PID)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Estado do processo</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Contadores e registradores</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Informações de memória</div>
                             </div>
                             
-                            <div class="sub-node highlight">
+                            <div class="sub-node highlight" onclick="flashNode(this)">
                                 <div class="sub-node-title">Visualização de Processos</div>
                                 <div class="visualization">
                                     <div class="visualization-title">Windows:</div>
@@ -233,25 +383,25 @@
                     
                     <!-- Ramo 2 -->
                     <div class="branch">
-                        <div class="branch-title">Estados de um Processo</div>
+                        <div class="branch-title" onclick="toggleBranch(this)">Estados de um Processo</div>
                         <div class="node-content">
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="estados">
                                 <div class="sub-node-title">Novo</div>
                                 <p>Processo sendo criado</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="estados">
                                 <div class="sub-node-title">Pronto</div>
                                 <p>Aguardando alocação de CPU</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="estados">
                                 <div class="sub-node-title">Execução</div>
                                 <p>Instruções sendo executadas</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="estados">
                                 <div class="sub-node-title">Espera/Blocado</div>
                                 <p>Aguardando recurso (E/S, etc.)</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="estados">
                                 <div class="sub-node-title">Terminado</div>
                                 <p>Processo finalizado</p>
                             </div>
@@ -263,25 +413,25 @@
                 <div class="branch-column">
                     <!-- Ramo 3 -->
                     <div class="branch">
-                        <div class="branch-title">Tipos de Processos</div>
+                        <div class="branch-title" onclick="toggleBranch(this)">Tipos de Processos</div>
                         <div class="node-content">
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="tipos">
                                 <div class="sub-node-title">CPU-bound</div>
                                 <p>Uso intensivo de processamento</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="tipos">
                                 <div class="sub-node-title">I/O-bound</div>
                                 <p>Uso intensivo de entrada/saída</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="tipos">
                                 <div class="sub-node-title">Processos de Sistema</div>
                                 <p>Gerenciados pelo SO</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="tipos">
                                 <div class="sub-node-title">Processos de Usuário</div>
                                 <p>Iniciados por usuários</p>
                             </div>
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="tipos">
                                 <div class="sub-node-title">Processos Batch</div>
                                 <p>Execução sem interação</p>
                             </div>
@@ -290,27 +440,27 @@
                     
                     <!-- Ramo 4 -->
                     <div class="branch">
-                        <div class="branch-title">Escalonamento de Processos</div>
+                        <div class="branch-title" onclick="toggleBranch(this)">Escalonamento de Processos</div>
                         <div class="node-content">
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="escalonamento">
                                 <div class="sub-node-title">Escalonador de Curto Prazo</div>
                                 <p>Seleciona próximo processo para CPU</p>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="escalonamento">
                                 <div class="sub-node-title">Algoritmos</div>
-                                <div class="sub-sub-node">FIFO/FCFS (First-Come, First-Served)</div>
-                                <div class="sub-sub-node">SJF (Shortest Job First)</div>
-                                <div class="sub-sub-node">Round Robin</div>
-                                <div class="sub-sub-node">Prioridades</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">FIFO/FCFS (First-Come, First-Served)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">SJF (Shortest Job First)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Round Robin</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Prioridades</div>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="escalonamento">
                                 <div class="sub-node-title">Critérios</div>
-                                <div class="sub-sub-node">Throughput</div>
-                                <div class="sub-sub-node">Tempo de Turnaround</div>
-                                <div class="sub-sub-node">Tempo de Espera</div>
-                                <div class="sub-sub-node">Tempo de Resposta</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Throughput</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Tempo de Turnaround</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Tempo de Espera</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Tempo de Resposta</div>
                             </div>
                         </div>
                     </div>
@@ -320,23 +470,23 @@
                 <div class="branch-column">
                     <!-- Ramo 5 -->
                     <div class="branch">
-                        <div class="branch-title">Gerenciamento de Memória</div>
+                        <div class="branch-title" onclick="toggleBranch(this)">Gerenciamento de Memória</div>
                         <div class="node-content">
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria">
                                 <div class="sub-node-title">Tipos de Memória</div>
-                                <div class="sub-sub-node">RAM (Principal)</div>
-                                <div class="sub-sub-node">Armazenamento em massa</div>
-                                <div class="sub-sub-node">Cache</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">RAM (Principal)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Armazenamento em massa</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Cache</div>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria">
                                 <div class="sub-node-title">Técnicas</div>
-                                <div class="sub-sub-node">Alocação Contígua</div>
-                                <div class="sub-sub-node">Paginação</div>
-                                <div class="sub-sub-node">Segmentação</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Alocação Contígua</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Paginação</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Segmentação</div>
                             </div>
                             
-                            <div class="sub-node highlight">
+                            <div class="sub-node highlight" onclick="flashNode(this)">
                                 <div class="sub-node-title">Visualização de Memória</div>
                                 <div class="visualization">
                                     <div class="visualization-title">Windows:</div>
@@ -348,42 +498,72 @@
                                 </div>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria,fragmentacao">
                                 <div class="sub-node-title">Fragmentação</div>
-                                <div class="sub-sub-node">Interna (espaço não utilizado em blocos alocados)</div>
-                                <div class="sub-sub-node">Externa (espaço entre blocos alocados)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Interna (espaço não utilizado em blocos alocados)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Externa (espaço entre blocos alocados)</div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Ramo 6 -->
                     <div class="branch">
-                        <div class="branch-title">Memória Virtual</div>
+                        <div class="branch-title" onclick="toggleBranch(this)">Memória Virtual</div>
                         <div class="node-content">
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria,virtual">
                                 <div class="sub-node-title">Paginação sob Demanda</div>
                                 <p>Páginas carregadas apenas quando necessárias</p>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria,virtual">
                                 <div class="sub-node-title">Page Fault</div>
                                 <p>Quando uma página não está na memória principal</p>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria,virtual">
                                 <div class="sub-node-title">Algoritmos de Substituição</div>
-                                <div class="sub-sub-node">FIFO (First-In, First-Out)</div>
-                                <div class="sub-sub-node">LRU (Least Recently Used)</div>
-                                <div class="sub-sub-node">Ótimo (teórico)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">FIFO (First-In, First-Out)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">LRU (Least Recently Used)</div>
+                                <div class="sub-sub-node" onclick="event.stopPropagation(); flashNode(this)">Ótimo (teórico)</div>
                             </div>
                             
-                            <div class="sub-node">
+                            <div class="sub-node" onclick="flashNode(this)" data-related="memoria,virtual">
                                 <div class="sub-node-title">Thrashing</div>
                                 <p>Excesso de page faults degradando desempenho</p>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Jogo da Memória -->
+            <div class="memory-game">
+                <h3 class="section-title">Jogo da Memória: Estados de Processos</h3>
+                <p>Encontre os pares correspondentes para reforçar seu aprendizado!</p>
+                <div class="memory-stats">
+                    <div>Tentativas: <span id="memoryAttempts">0</span></div>
+                    <div>Pares encontrados: <span id="memoryMatches">0</span>/4</div>
+                </div>
+                <div class="memory-cards" id="memoryCards"></div>
+            </div>
+            
+            <!-- Quiz Interativo -->
+            <div class="quiz-container">
+                <h3 class="section-title">Quiz de Verificação</h3>
+                <div class="quiz-question" id="quizQuestion">1. Qual dos seguintes não é um estado de um processo?</div>
+                <div class="quiz-options" id="quizOptions">
+                    <div class="quiz-option" onclick="selectOption(this)">Novo</div>
+                    <div class="quiz-option" onclick="selectOption(this)">Pronto</div>
+                    <div class="quiz-option" onclick="selectOption(this)">Execução</div>
+                    <div class="quiz-option correct" onclick="selectOption(this)">Fragmentado</div>
+                </div>
+                <div class="quiz-feedback correct">
+                    ✅ Correto! "Fragmentado" não é um estado de processo, mas sim uma condição da memória.
+                </div>
+                <div class="quiz-feedback incorrect">
+                    ❌ Incorreto. "Fragmentado" se refere à memória, não a estados de processo. Os estados válidos são: Novo, Pronto, Execução, Espera/Blocado e Terminado.
+                </div>
+                <button class="quiz-button" onclick="nextQuestion()">Próxima Pergunta</button>
             </div>
             
             <div class="resources-section">
@@ -425,5 +605,245 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Função para alternar a visualização dos ramos
+        function toggleBranch(element) {
+            const content = element.nextElementSibling;
+            element.classList.toggle("active");
+            content.classList.toggle("collapsed");
+        }
+
+        // Função para destacar elementos (efeito flash)
+        function flashNode(element) {
+            element.classList.add("flash");
+            setTimeout(() => {
+                element.classList.remove("flash");
+            }, 1000);
+            
+            // Se tiver data-related, destacar outros elementos relacionados
+            if (element.dataset.related) {
+                const relatedTags = element.dataset.related.split(',');
+                relatedTags.forEach(tag => {
+                    document.querySelectorAll(`[data-related*="${tag}"]`).forEach(el => {
+                        if (el !== element) {
+                            el.classList.add("flash");
+                            setTimeout(() => {
+                                el.classList.remove("flash");
+                            }, 1000);
+                        }
+                    });
+                });
+            }
+        }
+
+        // Central node interaction
+        document.getElementById('centralNode').addEventListener('click', function() {
+            // Flash all main branches
+            document.querySelectorAll('.branch-title').forEach(el => {
+                el.classList.add("flash");
+                setTimeout(() => {
+                    el.classList.remove("flash");
+                }, 1000);
+            });
+        });
+
+        // Quiz functionality
+        let currentQuestion = 1;
+        const questions = [
+            {
+                question: "1. Qual dos seguintes não é um estado de um processo?",
+                options: ["Novo", "Pronto", "Execução", "Fragmentado"],
+                correct: 3,
+                feedbackCorrect: "✅ Correto! 'Fragmentado' não é um estado de processo, mas sim uma condição da memória.",
+                feedbackIncorrect: "❌ Incorreto. 'Fragmentado' se refere à memória, não a estados de processo. Os estados válidos são: Novo, Pronto, Execução, Espera/Blocado e Terminado."
+            },
+            {
+                question: "2. Qual técnica de gerenciamento de memória divide a memória em páginas de tamanho fixo?",
+                options: ["Segmentação", "Paginação", "Alocação contígua", "Memória virtual"],
+                correct: 1,
+                feedbackCorrect: "✅ Correto! A paginação divide a memória em páginas de tamanho fixo.",
+                feedbackIncorrect: "❌ Incorreto. A paginação é a técnica que divide a memória em páginas de tamanho fixo. A segmentação divide em partes variáveis."
+            },
+            {
+                question: "3. O que é um 'page fault' na memória virtual?",
+                options: [
+                    "Erro crítico no sistema operacional",
+                    "Quando uma página não está na memória principal",
+                    "Fragmentação excessiva da memória",
+                    "Conflito entre páginas de memória"
+                ],
+                correct: 1,
+                feedbackCorrect: "✅ Correto! Page fault ocorre quando um processo tenta acessar uma página que não está atualmente na memória principal.",
+                feedbackIncorrect: "❌ Incorreto. Page fault é quando um processo tenta acessar uma página que não está na memória principal, não um erro crítico."
+            }
+        ];
+
+        function selectOption(option) {
+            const options = option.parentElement.children;
+            for (let i = 0; i < options.length; i++) {
+                options[i].classList.remove("selected");
+            }
+            option.classList.add("selected");
+            
+            const isCorrect = option.classList.contains("correct");
+            const feedbacks = option.parentElement.nextElementSibling.nextElementSibling;
+            
+            if (isCorrect) {
+                option.parentElement.nextElementSibling.style.display = "block";
+                feedbacks.style.display = "none";
+            } else {
+                option.parentElement.nextElementSibling.style.display = "none";
+                feedbacks.style.display = "block";
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length) {
+                currentQuestion++;
+                const question = questions[currentQuestion-1];
+                document.getElementById('quizQuestion').textContent = question.question;
+                
+                const optionsContainer = document.getElementById('quizOptions');
+                optionsContainer.innerHTML = '';
+                
+                question.options.forEach((opt, index) => {
+                    const optElement = document.createElement('div');
+                    optElement.className = 'quiz-option';
+                    if (index === question.correct) {
+                        optElement.classList.add('correct');
+                    }
+                    optElement.textContent = opt;
+                    optElement.onclick = function() { selectOption(this); };
+                    optionsContainer.appendChild(optElement);
+                });
+                
+                // Update feedback
+                const feedbacks = optionsContainer.nextElementSibling.nextElementSibling;
+                optionsContainer.nextElementSibling.textContent = question.feedbackCorrect;
+                feedbacks.textContent = question.feedbackIncorrect;
+                
+                // Hide feedbacks initially
+                optionsContainer.nextElementSibling.style.display = "none";
+                feedbacks.style.display = "none";
+            } else {
+                alert('Quiz concluído! Você pode revisar os conceitos ou jogar o jogo da memória para reforçar seu aprendizado.');
+                currentQuestion = 0;
+                nextQuestion();
+            }
+        }
+
+        // Memory Game
+        const memoryCardsData = [
+            { id: 1, content: "Novo", definition: "Processo sendo criado" },
+            { id: 2, content: "Pronto", definition: "Aguardando alocação de CPU" },
+            { id: 3, content: "Execução", definition: "Instruções sendo executadas" },
+            { id: 4, content: "Espera", definition: "Aguardando recurso (E/S)" },
+            { id: 1, content: "Novo", definition: "Processo sendo criado" },
+            { id: 2, content: "Pronto", definition: "Aguardando alocação de CPU" },
+            { id: 3, content: "Execução", definition: "Instruções sendo executadas" },
+            { id: 4, content: "Espera", definition: "Aguardando recurso (E/S)" }
+        ];
+
+        // Shuffle function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let attempts = 0;
+
+        function createMemoryGame() {
+            const container = document.getElementById('memoryCards');
+            container.innerHTML = '';
+            
+            const shuffledCards = shuffleArray([...memoryCardsData]);
+            
+            shuffledCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                cardElement.dataset.id = card.id;
+                cardElement.dataset.index = index;
+                cardElement.textContent = '?';
+                
+                cardElement.addEventListener('click', () => flipCard(cardElement, card));
+                container.appendChild(cardElement);
+            });
+            
+            // Reset stats
+            flippedCards = [];
+            matchedPairs = 0;
+            attempts = 0;
+            document.getElementById('memoryAttempts').textContent = attempts;
+            document.getElementById('memoryMatches').textContent = matchedPairs;
+        }
+
+        function flipCard(cardElement, cardData) {
+            // Don't allow flipping if already flipped or matched
+            if (cardElement.classList.contains('flipped') || cardElement.classList.contains('matched')) {
+                return;
+            }
+            
+            // Don't allow more than 2 cards flipped at once
+            if (flippedCards.length >= 2) {
+                return;
+            }
+            
+            // Flip the card
+            cardElement.classList.add('flipped');
+            cardElement.textContent = cardData.content;
+            
+            flippedCards.push({
+                element: cardElement,
+                id: cardData.id
+            });
+            
+            // Check for match if two cards are flipped
+            if (flippedCards.length === 2) {
+                attempts++;
+                document.getElementById('memoryAttempts').textContent = attempts;
+                
+                if (flippedCards[0].id === flippedCards[1].id) {
+                    // Match found
+                    flippedCards[0].element.classList.add('matched');
+                    flippedCards[1].element.classList.add('matched');
+                    flippedCards = [];
+                    matchedPairs++;
+                    document.getElementById('memoryMatches').textContent = matchedPairs;
+                    
+                    if (matchedPairs === 4) {
+                        setTimeout(() => {
+                            alert(`Parabéns! Você completou o jogo em ${attempts} tentativas.`);
+                        }, 500);
+                    }
+                } else {
+                    // No match, flip back after delay
+                    setTimeout(() => {
+                        flippedCards[0].element.classList.remove('flipped');
+                        flippedCards[1].element.classList.remove('flipped');
+                        flippedCards[0].element.textContent = '?';
+                        flippedCards[1].element.textContent = '?';
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        // Initialize the game
+        createMemoryGame();
+
+        // Add restart button functionality
+        const restartButton = document.createElement('button');
+        restartButton.textContent = 'Reiniciar Jogo';
+        restartButton.className = 'quiz-button';
+        restartButton.style.marginTop = '10px';
+        restartButton.addEventListener('click', createMemoryGame);
+        document.querySelector('.memory-game').appendChild(restartButton);
+    </script>
 </body>
 </html>
