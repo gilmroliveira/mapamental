@@ -4,253 +4,424 @@
     <meta charset="UTF-8">
     <title>Mapa Mental - Gerência de Processos e Memória</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --light: #ecf0f1;
+            --dark: #34495e;
         }
-        .mindmap {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: var(--dark);
+            font-size: 1.1em;
+        }
+        .mindmap-container {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
         .central-node {
-            background-color: #2c3e50;
+            background-color: var(--primary);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 15px;
             text-align: center;
-            width: 200px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 250px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            border: 3px solid var(--secondary);
         }
-        .branches {
+        .central-node h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .branches-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 30px;
+            gap: 20px;
+            width: 100%;
+        }
+        .branch-column {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
         }
         .branch {
-            margin: 0 15px;
-            width: 200px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-top: 5px solid var(--secondary);
         }
         .branch-title {
-            background-color: #3498db;
+            background-color: var(--secondary);
             color: white;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+            padding: 12px 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .node-content {
+            padding: 15px;
         }
         .sub-node {
-            background-color: #ecf0f1;
-            padding: 8px;
-            border-radius: 6px;
+            background-color: var(--light);
+            padding: 10px;
+            border-radius: 8px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-left: 4px solid #3498db;
+            border-left: 4px solid var(--secondary);
+            transition: transform 0.2s;
+        }
+        .sub-node:hover {
+            transform: translateX(5px);
+        }
+        .sub-node-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--primary);
         }
         .sub-sub-node {
             background-color: #f8f9fa;
-            padding: 6px;
-            border-radius: 4px;
-            margin: 5px 0 5px 10px;
-            font-size: 0.9em;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 8px 0 8px 15px;
+            font-size: 0.95em;
             border-left: 3px solid #7f8c8d;
         }
-        .resources {
+        .highlight {
+            background-color: #fffde7;
+            border-left: 4px solid #ffd600;
+        }
+        .command {
+            font-family: 'Courier New', monospace;
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .resources-section {
+            background-color: var(--light);
+            border-radius: 12px;
+            padding: 20px;
             margin-top: 30px;
-            background-color: #e74c3c;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 8px;
+            margin-top: 0;
         }
         .resource-item {
-            margin: 10px 0;
+            margin-bottom: 15px;
         }
-        .importance {
+        .resource-title {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        .importance-section {
+            background-color: #e8f5e9;
+            border-radius: 12px;
+            padding: 20px;
             margin-top: 30px;
-            background-color: #27ae60;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--success);
+        }
+        .importance-item {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .importance-item:before {
+            content: "✓";
+            color: var(--success);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        .visualization {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .visualization-title {
+            font-weight: bold;
+            color: #0d47a1;
+        }
+        @media (max-width: 768px) {
+            .branches-container {
+                flex-direction: column;
+            }
+            .branch-column {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="mindmap">
-        <div>
+    <div class="container">
+        <div class="header">
+            <h1>Gerência de Processos e Memória</h1>
+            <p>Sistemas Operacionais - Unidade II</p>
+        </div>
+        
+        <div class="mindmap-container">
             <div class="central-node">
                 <h2>Gerência de Processos e Memória</h2>
-                <p>Sistemas Operacionais</p>
+                <p>Gerenciamento de Recursos do SO</p>
             </div>
             
-            <div class="branches">
-                <!-- Primeiro ramo -->
-                <div class="branch">
-                    <div class="branch-title">
-                        <h3>Conceitos Básicos de Processos</h3>
+            <div class="branches-container">
+                <!-- Coluna 1 -->
+                <div class="branch-column">
+                    <!-- Ramo 1 -->
+                    <div class="branch">
+                        <div class="branch-title">Conceitos Básicos de Processos</div>
+                        <div class="node-content">
+                            <div class="sub-node">
+                                <div class="sub-node-title">Definição</div>
+                                <p>Programa em execução com:</p>
+                                <div class="sub-sub-node">Dados de entrada/saída</div>
+                                <div class="sub-sub-node">Estado atual</div>
+                                <div class="sub-sub-node">Contexto de execução</div>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">PCB (Process Control Block)</div>
+                                <div class="sub-sub-node">Identificação (PID)</div>
+                                <div class="sub-sub-node">Estado do processo</div>
+                                <div class="sub-sub-node">Contadores e registradores</div>
+                                <div class="sub-sub-node">Informações de memória</div>
+                            </div>
+                            
+                            <div class="sub-node highlight">
+                                <div class="sub-node-title">Visualização de Processos</div>
+                                <div class="visualization">
+                                    <div class="visualization-title">Windows:</div>
+                                    <span class="command">tasklist</span>
+                                </div>
+                                <div class="visualization">
+                                    <div class="visualization-title">Linux/MacOS:</div>
+                                    <span class="command">ps -aux</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sub-node">
-                        Programa em execução
-                    </div>
-                    <div class="sub-node">
-                        Estrutura de um Processo
-                        <div class="sub-sub-node">PCB (Process Control Block)</div>
-                        <div class="sub-sub-node">Registradores</div>
-                        <div class="sub-sub-node">Pilha</div>
-                    </div>
-                    <div class="sub-node">
-                        Threads
-                    </div>
-                </div>
-                
-                <!-- Segundo ramo -->
-                <div class="branch">
-                    <div class="branch-title">
-                        <h3>Estados de um Processo</h3>
-                    </div>
-                    <div class="sub-node">
-                        Novo
-                    </div>
-                    <div class="sub-node">
-                        Pronto
-                    </div>
-                    <div class="sub-node">
-                        Em Execução
-                    </div>
-                    <div class="sub-node">
-                        Espera/Blocado
-                    </div>
-                    <div class="sub-node">
-                        Terminado
-                    </div>
-                </div>
-                
-                <!-- Terceiro ramo -->
-                <div class="branch">
-                    <div class="branch-title">
-                        <h3>Tipos de Processos</h3>
-                    </div>
-                    <div class="sub-node">
-                        Processos CPU-bound
-                    </div>
-                    <div class="sub-node">
-                        Processos I/O-bound
-                    </div>
-                    <div class="sub-node">
-                        Processos de Sistema
-                    </div>
-                    <div class="sub-node">
-                        Processos de Usuário
-                    </div>
-                    <div class="sub-node">
-                        Processos Batch
-                    </div>
-                </div>
-                
-                <!-- Quarto ramo -->
-                <div class="branch">
-                    <div class="branch-title">
-                        <h3>Escalonamento de Processos</h3>
-                    </div>
-                    <div class="sub-node">
-                        Escalonador de Curto Prazo
-                    </div>
-                    <div class="sub-node">
-                        Algoritmos de Escalonamento
-                        <div class="sub-sub-node">FIFO/FCFS</div>
-                        <div class="sub-sub-node">Shortest Job First (SJF)</div>
-                        <div class="sub-sub-node">Round Robin</div>
-                        <div class="sub-sub-node">Prioridades</div>
-                    </div>
-                    <div class="sub-node">
-                        Critérios de Escalonamento
-                        <div class="sub-sub-node">Throughput</div>
-                        <div class="sub-sub-node">Tempo de Turnaround</div>
-                        <div class="sub-sub-node">Tempo de Espera</div>
+                    
+                    <!-- Ramo 2 -->
+                    <div class="branch">
+                        <div class="branch-title">Estados de um Processo</div>
+                        <div class="node-content">
+                            <div class="sub-node">
+                                <div class="sub-node-title">Novo</div>
+                                <p>Processo sendo criado</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Pronto</div>
+                                <p>Aguardando alocação de CPU</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Execução</div>
+                                <p>Instruções sendo executadas</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Espera/Blocado</div>
+                                <p>Aguardando recurso (E/S, etc.)</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Terminado</div>
+                                <p>Processo finalizado</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Quinto ramo -->
-                <div class="branch">
-                    <div class="branch-title">
-                        <h3>Gerenciamento de Memória</h3>
+                <!-- Coluna 2 -->
+                <div class="branch-column">
+                    <!-- Ramo 3 -->
+                    <div class="branch">
+                        <div class="branch-title">Tipos de Processos</div>
+                        <div class="node-content">
+                            <div class="sub-node">
+                                <div class="sub-node-title">CPU-bound</div>
+                                <p>Uso intensivo de processamento</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">I/O-bound</div>
+                                <p>Uso intensivo de entrada/saída</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Processos de Sistema</div>
+                                <p>Gerenciados pelo SO</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Processos de Usuário</div>
+                                <p>Iniciados por usuários</p>
+                            </div>
+                            <div class="sub-node">
+                                <div class="sub-node-title">Processos Batch</div>
+                                <p>Execução sem interação</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sub-node">
-                        Alocação Contígua
-                    </div>
-                    <div class="sub-node">
-                        Fragmentação
-                        <div class="sub-sub-node">Interna</div>
-                        <div class="sub-sub-node">Externa</div>
-                    </div>
-                    <div class="sub-node">
-                        Paginação
-                    </div>
-                    <div class="sub-node">
-                        Segmentação
+                    
+                    <!-- Ramo 4 -->
+                    <div class="branch">
+                        <div class="branch-title">Escalonamento de Processos</div>
+                        <div class="node-content">
+                            <div class="sub-node">
+                                <div class="sub-node-title">Escalonador de Curto Prazo</div>
+                                <p>Seleciona próximo processo para CPU</p>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Algoritmos</div>
+                                <div class="sub-sub-node">FIFO/FCFS (First-Come, First-Served)</div>
+                                <div class="sub-sub-node">SJF (Shortest Job First)</div>
+                                <div class="sub-sub-node">Round Robin</div>
+                                <div class="sub-sub-node">Prioridades</div>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Critérios</div>
+                                <div class="sub-sub-node">Throughput</div>
+                                <div class="sub-sub-node">Tempo de Turnaround</div>
+                                <div class="sub-sub-node">Tempo de Espera</div>
+                                <div class="sub-sub-node">Tempo de Resposta</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Sexto ramo -->
-                <div class="branch">
-                    <div class="branch-title">
-                        <h3>Memória Virtual</h3>
+                <!-- Coluna 3 -->
+                <div class="branch-column">
+                    <!-- Ramo 5 -->
+                    <div class="branch">
+                        <div class="branch-title">Gerenciamento de Memória</div>
+                        <div class="node-content">
+                            <div class="sub-node">
+                                <div class="sub-node-title">Tipos de Memória</div>
+                                <div class="sub-sub-node">RAM (Principal)</div>
+                                <div class="sub-sub-node">Armazenamento em massa</div>
+                                <div class="sub-sub-node">Cache</div>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Técnicas</div>
+                                <div class="sub-sub-node">Alocação Contígua</div>
+                                <div class="sub-sub-node">Paginação</div>
+                                <div class="sub-sub-node">Segmentação</div>
+                            </div>
+                            
+                            <div class="sub-node highlight">
+                                <div class="sub-node-title">Visualização de Memória</div>
+                                <div class="visualization">
+                                    <div class="visualization-title">Windows:</div>
+                                    <span class="command">systeminfo</span>
+                                </div>
+                                <div class="visualization">
+                                    <div class="visualization-title">Linux/MacOS:</div>
+                                    <span class="command">free</span> ou <span class="command">top</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Fragmentação</div>
+                                <div class="sub-sub-node">Interna (espaço não utilizado em blocos alocados)</div>
+                                <div class="sub-sub-node">Externa (espaço entre blocos alocados)</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="sub-node">
-                        Paginação sob Demanda
-                    </div>
-                    <div class="sub-node">
-                        Page Fault
-                    </div>
-                    <div class="sub-node">
-                        Algoritmos de Substituição
-                        <div class="sub-sub-node">FIFO</div>
-                        <div class="sub-sub-node">LRU</div>
-                        <div class="sub-sub-node">Ótimo</div>
-                    </div>
-                    <div class="sub-node">
-                        Thrashing
+                    
+                    <!-- Ramo 6 -->
+                    <div class="branch">
+                        <div class="branch-title">Memória Virtual</div>
+                        <div class="node-content">
+                            <div class="sub-node">
+                                <div class="sub-node-title">Paginação sob Demanda</div>
+                                <p>Páginas carregadas apenas quando necessárias</p>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Page Fault</div>
+                                <p>Quando uma página não está na memória principal</p>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Algoritmos de Substituição</div>
+                                <div class="sub-sub-node">FIFO (First-In, First-Out)</div>
+                                <div class="sub-sub-node">LRU (Least Recently Used)</div>
+                                <div class="sub-sub-node">Ótimo (teórico)</div>
+                            </div>
+                            
+                            <div class="sub-node">
+                                <div class="sub-node-title">Thrashing</div>
+                                <p>Excesso de page faults degradando desempenho</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="resources">
-                <h3>Recursos de Aprendizado</h3>
+            <div class="resources-section">
+                <h3 class="section-title">Recursos de Aprendizado</h3>
                 <div class="resource-item">
-                    <strong>Slides:</strong> 02 - Conceitos básicos de processos e memória
+                    <div class="resource-title">Slides de Referência:</div>
+                    <p>02 - Conceitos básicos de processos e memória</p>
                 </div>
                 <div class="resource-item">
-                    <strong>Apostila:</strong> [e-TEC 2015] Sistemas Operacionais - Páginas 45-50 (processos) e 51-61 (memória)
-                </div>
-                <div class="resource-item">
-                    <strong>Vídeos:</strong> 
+                    <div class="resource-title">Apostila:</div>
+                    <p>[e-TEC 2015] Sistemas Operacionais - Adriana Soares, Elisa Maria e Roberto Franciscatto</p>
                     <ul>
-                        <li>Aula 05 - Processos e Escalonamento</li>
-                        <li>Aula 06 - Escalonamento de Processo</li>
-                        <li>Aula 17 - Gerenciamento de Memória</li>
-                        <li>Aula 18 - Memória Virtual</li>
+                        <li>Páginas 45-50 (Gerenciamento de Processos)</li>
+                        <li>Páginas 51-61 (Gerenciamento de Memória)</li>
+                    </ul>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-title">Vídeos Recomendados:</div>
+                    <ul>
+                        <li>Sistemas Operacionais – Aula 05 - Processos e Escalonamento</li>
+                        <li>Sistemas Operacionais – Aula 06 - Escalonamento de Processo</li>
+                        <li>Sistemas Operacionais - Aula 17 - Introdução ao Gerenciamento de Memória</li>
+                        <li>Sistemas Operacionais - Aula 18 - Técnicas de Memória Virtual</li>
                     </ul>
                 </div>
             </div>
             
-            <div class="importance">
-                <h3>Importância para Desenvolvedores</h3>
-                <p>Entender processos e memória permite:</p>
-                <ul>
-                    <li>Desenvolver softwares mais eficientes</li>
-                    <li>Otimizar uso de recursos do sistema</li>
-                    <li>Prevenir problemas como deadlocks e thrashing</li>
-                    <li>Escolher estratégias adequadas de concorrência</li>
-                    <li>Gerenciar melhor a alocação de memória</li>
-                    <li>Projetar sistemas escaláveis e responsivos</li>
-                </ul>
+            <div class="importance-section">
+                <h3 class="section-title">Importância para Desenvolvedores</h3>
+                <p>O conhecimento sobre gerenciamento de processos e memória é crucial para:</p>
+                <div class="importance-item">Desenvolver softwares mais eficientes e otimizados</div>
+                <div class="importance-item">Entender e prevenir problemas como deadlocks e thrashing</div>
+                <div class="importance-item">Escolher estratégias adequadas de concorrência e paralelismo</div>
+                <div class="importance-item">Gerenciar melhor a alocação de memória em aplicações</div>
+                <div class="importance-item">Projetar sistemas escaláveis que lidam com múltiplos processos</div>
+                <div class="importance-item">Diagnosticar problemas de desempenho em sistemas operacionais</div>
+                <div class="importance-item">Implementar soluções que minimizem a fragmentação de memória</div>
+                <div class="importance-item">Criar aplicações que coexistem harmonicamente com outros processos</div>
             </div>
         </div>
     </div>
